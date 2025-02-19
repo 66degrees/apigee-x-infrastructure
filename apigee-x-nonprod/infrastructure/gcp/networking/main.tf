@@ -11,7 +11,7 @@ resource "google_compute_subnetwork" "apigee_non_prod_subnet_runtime" {
   name          = "apigee-non-prod-subnet-${each.key}-runtime"
   region        = each.value.region
   network       = google_compute_network.apigee_network.id
-  ip_cidr_range = each.value.cidr_range
+  ip_cidr_range = each.value.runtime_cidr
   project       = var.project_id
   private_ip_google_access = true
 }
