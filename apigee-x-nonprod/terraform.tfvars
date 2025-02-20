@@ -1,4 +1,4 @@
-project_id                 = ""
+project_id                 = "saas-seed-project"
 analytics_region           = ""
 apigee_org_kms_keyring_name = ""
 org_key_rotation_period    = "2592000s"       # 30 days rotation period

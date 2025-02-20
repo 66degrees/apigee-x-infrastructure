@@ -5,7 +5,7 @@ resource "google_project_service_identity" "apigee_sa" {
 }
 
 module "kms-org-db" {
-  source     = "../modules/kms?ref=v16.0.0"
+  source     = "./modules/kms"
   project_id = var.project_id
   key_iam = {
     org-db = {
@@ -22,7 +22,7 @@ module "kms-org-db" {
 }
 
 module "apigee" {
-  source                  = "../modules/apigee-organization?ref=v16.0.0"
+  source                  = "./modules/apigee-organization"
   project_id              = var.project_id
   analytics_region        = var.analytics_region
   runtime_type            = var.runtime_type
@@ -39,7 +39,7 @@ module "apigee" {
 
 module "kms-inst-disk" {
   for_each   = var.apigee_instances
-  source     = "../modules/kms?ref=v16.0.0"
+  source     = "./modules/kms"
   project_id = var.project_id
   key_iam = {
     inst-disk = {
@@ -57,7 +57,7 @@ module "kms-inst-disk" {
 
 module "apigee-x-instance" {
   for_each            = var.apigee_instances
-  source              = "./modules/apigee-x-instance?ref=v16.0.0"
+  source              = "./modules/apigee-x-instance"
   apigee_org_id       = module.apigee.org_id
   name                = each.key
   region              = each.value.region

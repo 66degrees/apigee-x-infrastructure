@@ -1,6 +1,6 @@
 output "envs" {
   description = "Apigee Environments."
-  value       = google_apigee_environment.apigee_env.name
+  value       = { for k, v in google_apigee_environment.apigee_env : k => v.name }
 }
 
 output "org" {
