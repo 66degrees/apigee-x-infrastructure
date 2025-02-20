@@ -12,7 +12,7 @@ variable "subnet_regions" {
   description = "Map of regions with CIDR ranges for runtime and control subnets"
   type = map(object({
     region       = string
-    cidr_range   = string
+    runtime_cidr   = string
     control_cidr = string
   }))
 }
@@ -155,7 +155,6 @@ variable "apigee_health_check_port" {
   type        = number
 }
 
-
 variable "apigee_health_check_path" {
   description = "Request path for health checks"
   type        = string
@@ -199,6 +198,10 @@ variable "dns_ttl" {
   type        = number
 }
 
+
+
+
+
 variable "backend_port" {
   description = "Backend port for Apigee"
   type        = number
@@ -207,7 +210,7 @@ variable "backend_port" {
 
 variable "apigee_zones" {
   description = "List of zones for Apigee NEG"
-  type        = map(list(string))
+  type        = map(string)
 }
 
 variable "apigee_regions" {
@@ -247,7 +250,7 @@ variable "gke_backend_timeout_sec" {
 
 variable "gke_zones" {
   description = "List of zones for GKE instance groups"
-  type        = map(list(string))
+  type        = map(string)
 }
 
 variable "gke_health_check_name" {

@@ -36,6 +36,7 @@ resource "google_compute_subnetwork" "apigee_non_prod_subnet_control" {
 # Cloud Armor Security Policy
 resource "google_compute_security_policy" "apigee_security_policy" {
   name = var.security_policy_name
+  project = var.project_id
 
   # Allow rule for trusted sources
   rule {
@@ -72,11 +73,13 @@ resource "google_compute_security_policy" "apigee_security_policy" {
 # Global IP Address for Apigee Load Balancer
 resource "google_compute_global_address" "apigee_global_ip" {
   name = var.apigee_global_ip_name
+  project = var.project_id
 }
 
 # SSL Certificate for HTTPS Load Balancing
 resource "google_compute_ssl_certificate" "apigee_ssl" {
   name         = var.ssl_certificate_name
+  project         = var.project_id
   private_key  = file(var.ssl_private_key_path)
   certificate  = file(var.ssl_certificate_path)
 }
@@ -84,12 +87,14 @@ resource "google_compute_ssl_certificate" "apigee_ssl" {
 # URL Map for Load Balancer
 resource "google_compute_url_map" "apigee_url_map" {
   name            = var.apigee_url_map_name
+  project         = var.project_id
   default_service = google_compute_backend_service.apigee_backend.id
 }
 
 # HTTPS Proxy
 resource "google_compute_target_https_proxy" "apigee_https_proxy" {
   name            = var.apigee_https_proxy_name
+  project         = var.project_id
   url_map        = google_compute_url_map.apigee_url_map.id
   ssl_certificates = [google_compute_ssl_certificate.apigee_ssl.id]
 }
@@ -97,6 +102,7 @@ resource "google_compute_target_https_proxy" "apigee_https_proxy" {
 # Global Forwarding Rule
 resource "google_compute_global_forwarding_rule" "apigee_forwarding_rule" {
   name       = var.apigee_forwarding_rule_name
+  project         = var.project_id
   target     = google_compute_target_https_proxy.apigee_https_proxy.id
   ip_address = google_compute_global_address.apigee_global_ip.address
   port_range = "443"
@@ -105,6 +111,7 @@ resource "google_compute_global_forwarding_rule" "apigee_forwarding_rule" {
 # Backend Service
 resource "google_compute_backend_service" "apigee_backend" {
   name                  = var.apigee_backend_service_name
+  project               = var.project_id
   protocol              = "HTTPS"
   timeout_sec           = var.apigee_backend_timeout_sec
   load_balancing_scheme = "EXTERNAL"
@@ -114,7 +121,7 @@ resource "google_compute_backend_service" "apigee_backend" {
   dynamic "backend" {
     for_each = google_compute_network_endpoint_group.apigee_neg
     content {
-      group = each.value.id
+      group = backend.value.id
     }
   }
 
@@ -124,6 +131,7 @@ resource "google_compute_backend_service" "apigee_backend" {
 # Health Check
 resource "google_compute_health_check" "apigee_health_check" {
   name               = var.apigee_health_check_name
+  project            = var.project_id
   check_interval_sec = var.apigee_health_check_interval
   timeout_sec        = var.apigee_health_check_timeout
 
@@ -158,11 +166,13 @@ resource "google_compute_firewall" "allow_apigee" {
 # DNS Zone for Apigee
 resource "google_dns_managed_zone" "apigee_dns_zone" {
   name     = var.dns_zone_name
+  project  = var.project_id 
   dns_name = var.dns_name
 }
 
 resource "google_dns_record_set" "apigee_dns_record" {
-  name         = google_dns_managed_zone.apigee_dns_zone.dns_name
+  name         = "${var.dns_name}"
+  project      = var.project_id
   managed_zone = google_dns_managed_zone.apigee_dns_zone.name  
   type         = "A" 
   ttl          = var.dns_ttl  
@@ -175,8 +185,9 @@ resource "google_dns_record_set" "apigee_dns_record" {
 resource "google_compute_network_endpoint_group" "apigee_neg" {
   for_each              = var.apigee_zones
   name                  = "apigee-neg-${each.key}"
+  project               = var.project_id
   network               = google_compute_network.apigee_network.id
-  subnetwork            = google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.value.region].id
+  subnetwork            = google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.key].id
   default_port          = var.backend_port
   zone                  = each.key
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
@@ -214,17 +225,20 @@ resource "google_compute_forwarding_rule" "psc_endpoint" {
 
 resource "google_compute_global_address" "gke_global_ip" {
   name = var.gke_global_ip_name
+  project = var.project_id
 }
 
 # URL Map for Backend Routing
 resource "google_compute_url_map" "gke_url_map" {
   name            = var.gke_url_map_name
+  project         = var.project_id  
   default_service = google_compute_backend_service.gke_backend.id
 }
 
 # Target HTTPS Proxy for Backend
 resource "google_compute_target_https_proxy" "gke_https_proxy" {
   name            = var.gke_https_proxy_name
+  project         = var.project_id
   url_map         = google_compute_url_map.gke_url_map.id
   ssl_certificates = [google_compute_ssl_certificate.apigee_ssl.id]
 }
@@ -232,6 +246,7 @@ resource "google_compute_target_https_proxy" "gke_https_proxy" {
 # Global Forwarding Rule (Apigee to GKE)
 resource "google_compute_global_forwarding_rule" "gke_forwarding_rule" {
   name       = var.gke_forwarding_rule_name
+  project = var.project_id
   target     = google_compute_target_https_proxy.gke_https_proxy.id
   ip_address = google_compute_global_address.gke_global_ip.address
   port_range = var.gke_lb_port
@@ -240,6 +255,7 @@ resource "google_compute_global_forwarding_rule" "gke_forwarding_rule" {
 # Backend Service for apigee to GKE
 resource "google_compute_backend_service" "gke_backend" {
   name                  = var.gke_backend_service_name
+  project = var.project_id
   protocol              = "HTTPS"
   timeout_sec           = var.gke_backend_timeout_sec
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -258,6 +274,7 @@ resource "google_compute_backend_service" "gke_backend" {
 
 resource "google_compute_health_check" "gke_health_check" {
   name               = var.gke_health_check_name
+  project = var.project_id
   check_interval_sec = var.gke_health_check_interval
   timeout_sec        = var.gke_health_check_timeout
   healthy_threshold  = var.gke_healthy_threshold

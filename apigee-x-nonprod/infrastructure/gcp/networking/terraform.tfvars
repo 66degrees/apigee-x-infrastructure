@@ -81,9 +81,9 @@ dns_ttl       = 300
 backend_port = 443
 
 apigee_zones = {
-  "northamerica-northeast1" = [""]
-  "us-central1"             = [""]
-  "us-east4"                = [""]
+  "northamerica-northeast1" = ""
+  "us-central1"             = ""
+  "us-east4"                = ""
 }
 
 apigee_regions = ["northamerica-northeast1", "us-central1", "us-east4"]
@@ -97,9 +97,9 @@ gke_backend_service_name   = "gke-backend-service"
 gke_backend_timeout_sec    = 30
 
 gke_zones = {
-  "northamerica-northeast1" = [""]
-  "us-central1"             = [""]
-  "us-east4"                = [""]
+  "northamerica-northeast1" = ""
+  "us-central1"             = ""
+  "us-east4"                = ""
 }
 
 
