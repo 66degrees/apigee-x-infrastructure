@@ -193,28 +193,28 @@ resource "google_compute_network_endpoint_group" "apigee_neg" {
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
 }
 
-resource "google_compute_service_attachment" "apigee_psc_attachment" {
-  for_each    = toset(var.apigee_regions)
-  name        = "apigee-psc-attachment-${each.key}"
-  project     = var.project_id
-  region      = each.key
-  nat_subnets = [google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.key].id]
+# resource "google_compute_service_attachment" "apigee_psc_attachment" {
+#   for_each    = toset(var.apigee_regions)
+#   name        = "apigee-psc-attachment-${each.key}"
+#   project     = var.project_id
+#   region      = each.key
+#   nat_subnets = [google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.key].id]
 
-  enable_proxy_protocol = false
-  connection_preference = "ACCEPT_AUTOMATIC"
+#   enable_proxy_protocol = false
+#   connection_preference = "ACCEPT_AUTOMATIC"
 
-  target_service = module.apigee_x_instance[each.key].google_apigee_instance.apigee_instance.id
-}
+#   target_service = module.apigee_x_instance[each.key].google_apigee_instance.apigee_instance.id
+# }
 
-resource "google_compute_forwarding_rule" "psc_endpoint" {
-  for_each              = var.apigee_regions
-  name                  = "apigee-psc-endpoint-${each.key}"
-  network               = google_compute_network.apigee_network.id
-  subnetwork            = google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.key].id
-  target                = google_compute_service_attachment.apigee_psc_attachment[each.key].id
-  load_balancing_scheme = "INTERNAL"
-  region                = each.key
-}
+# resource "google_compute_forwarding_rule" "psc_endpoint" {
+#   for_each              = var.apigee_regions
+#   name                  = "apigee-psc-endpoint-${each.key}"
+#   network               = google_compute_network.apigee_network.id
+#   subnetwork            = google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.key].id
+#   target                = google_compute_service_attachment.apigee_psc_attachment[each.key].id
+#   load_balancing_scheme = "INTERNAL"
+#   region                = each.key
+# }
 
 
 

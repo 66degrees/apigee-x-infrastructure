@@ -19,7 +19,6 @@ variable "subnet_regions" {
 
 
 
-
 variable "security_policy_name" {
   description = "The name of the Cloud Armor security policy"
   type        = string
@@ -81,13 +80,11 @@ variable "deny_rule_description" {
 variable "apigee_global_ip_name" {
   description = "Global IP address for Apigee Load Balancer"
   type        = string
-  default     = "apigee-global-ip"
 }
 
 variable "ssl_certificate_name" {
   description = "Name of the SSL certificate for HTTPS"
   type        = string
-  default     = "apigee-ssl-certificate"
 }
 
 variable "ssl_private_key_path" {
@@ -103,25 +100,21 @@ variable "ssl_certificate_path" {
 variable "apigee_url_map_name" {
   description = "Name of the URL Map"
   type        = string
-  default     = "apigee-url-map"
 }
 
 variable "apigee_https_proxy_name" {
   description = "Name of the Target HTTPS Proxy"
   type        = string
-  default     = "apigee-https-proxy"
 }
 
 variable "apigee_forwarding_rule_name" {
   description = "Name of the Global Forwarding Rule"
   type        = string
-  default     = "apigee-global-lb"
 }
 
 variable "apigee_backend_service_name" {
   description = "Name of the Backend Service"
   type        = string
-  default     = "apigee-backend-service"
 }
 
 variable "apigee_backend_timeout_sec" {
@@ -137,7 +130,6 @@ variable "apigee_backend_port_name" {
 variable "apigee_health_check_name" {
   description = "Name of the health check"
   type        = string
-  default     = "apigee-health-check"
 }
 
 variable "apigee_health_check_interval" {

@@ -1,4 +1,4 @@
-project_id                 = "saas-seed-project"
+project_id                 = "saas-seed-project"  #need to update nonprod project id
 analytics_region           = ""
 apigee_org_kms_keyring_name = ""
 org_key_rotation_period    = "2592000s"       # 30 days rotation period
@@ -22,7 +22,7 @@ apigee_environments = {
 apigee_envgroups = {
   default = {
     hostnames    = [""]  # Specify virtual hosts for the environment group
-    environments = ["dev", "staging"]
+    environments = ["development", "staging"]
   }
 }
 
@@ -30,7 +30,7 @@ apigee_envgroups = {
 apigee_instances = {
   "us-central1-instance1" = {
     region           = "us-central1"
-    ip_range         = "" 
+    ip_range         = "10.253.34.0/24"  # Subset of 10.253.32.0/19
     environments     = ["Development", "Staging"]
     key_name         = ""
     keyring_location = ""
@@ -39,7 +39,7 @@ apigee_instances = {
   },
   "northamerica-northeast1-instance1" = {
     region           = "northamerica-northeast1"
-    ip_range         = ""
+    ip_range         = "10.253.36.0/24"  # Subset of 10.253.32.0/19
     environments     = ["Development", "Staging"]
     key_name         = ""
     keyring_location = ""
@@ -48,7 +48,7 @@ apigee_instances = {
   },
   "us-east4-instance1" = {
     region           = "us-east4"
-    ip_range         = "1" 
+    ip_range         = "10.253.38.0/24"  # Subset of 10.253.32.0/19
     environments     = ["Development", "Staging"]
     key_name         = ""
     keyring_location = ""

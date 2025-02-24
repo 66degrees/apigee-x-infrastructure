@@ -1,0 +1,85 @@
+stages:
+  - validate
+  - plan
+  - apply
+
+variables:
+  ENVIRONMENT: "nonprod"  # Default to nonprod
+  GCP_PROJECT_ID: "your-gcp-project-${ENVIRONMENT}"
+  TF_STATE_BUCKET: "terraform-state-${ENVIRONMENT}"
+  APIGEE_ORG: "apigee-${ENVIRONMENT}-org"
+  GOOGLE_APPLICATION_CREDENTIALS: "/tmp/gcp-key.json"
+
+before_script:
+  - echo "Setting up GCP authentication..."
+  - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d > $GOOGLE_APPLICATION_CREDENTIALS
+  - gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+  - gcloud config set project $GCP_PROJECT_ID
+  - gcloud projects list
+
+validate:
+  stage: validate
+  parallel:
+    matrix:
+      - TERRAFORM_MODULE_PATH: 
+          - infrastructure/gcp/folders
+          - infrastructure/gcp/iam
+          - infrastructure/gcp/monitoring
+          - infrastructure/gcp/networking
+          - infrastructure/gcp/projects
+      - TERRAFORM_MODULE_PATH: 
+          - modules/apigee-organization
+          - modules/apigee-x-instance
+          - modules/kms
+  script:
+    - echo "Validating Terraform for $ENVIRONMENT"
+    - cd $TERRAFORM_MODULE_PATH
+    - terraform init -backend-config="../../backend.tf"
+    - terraform validate
+
+plan:
+  stage: plan
+  script:
+    - echo "Planning Terraform changes for $ENVIRONMENT"
+    - cd apigee-x-nonprod
+    - terraform init -backend-config="backend.tf"
+    - terraform plan -out=tfplan
+  only:
+    changes:
+      - apigee-x-nonprod/**/*
+      - .gitlab-ci.yml
+    refs:
+      - dev
+      - main
+
+apply_nonprod:
+  stage: apply
+  script:
+    - echo "Applying Terraform for Non-Prod ($ENVIRONMENT)"
+    - cd apigee-x-nonprod
+    - terraform apply -auto-approve tfplan
+  only:
+    - dev  # Run only on nonprod branch
+  needs:
+    - plan
+
+apply_prod:
+  stage: apply
+  script:
+    - echo "Applying Terraform for Production ($ENVIRONMENT)"
+    - cd apigee-x-nonprod
+    - terraform apply -auto-approve tfplan
+  only:
+    - main  # Run only on prod branch
+  when: manual  # Requires manual approval before production deployment
+  needs:
+    - apply_nonprod  # Ensure non-prod deployment completes first
+
+# Automatically set environment variables based on branch
+rules:
+  - if: '$CI_COMMIT_BRANCH == "main"'
+    variables:
+      ENVIRONMENT: "prod"  # Deploy to production when merging to main
+  - if: '$CI_COMMIT_BRANCH == "dev"'
+    variables:
+      ENVIRONMENT: "nonprod"  # Deploy to non-prod first

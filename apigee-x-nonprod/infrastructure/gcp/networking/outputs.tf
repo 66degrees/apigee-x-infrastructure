@@ -10,6 +10,7 @@ output "subnet_ids" {
   }
 }
 
+
 output "global_ip" {
   description = "Global IP address for Apigee Load Balancer"
   value       = google_compute_global_address.apigee_global_ip.address
@@ -55,4 +56,9 @@ output "gke_global_ip" {
 output "gke_backend_service_id" {
   description = "The ID of the GKE backend service"
   value       = google_compute_backend_service.gke_backend.id
+}
+
+output "network" {
+  description = "The Apigee network"
+  value       = google_compute_network.apigee_network.self_link
 }
