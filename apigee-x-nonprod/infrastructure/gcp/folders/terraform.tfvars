@@ -1,6 +1,6 @@
-folders = {
-  "team-folders" = {
-    display_name = ""
-    parent       = ""  
-  }
-}
+# folders = {
+#   "team-folders" = {
+#     display_name = ""
+#     parent       = ""  
+#   }
+# }

@@ -38,25 +38,29 @@ resource "google_compute_security_policy" "apigee_security_policy" {
   name = var.security_policy_name
   project = var.project_id
 
-  # Allow rule for trusted sources
+ # Whitelist traffic from certain ip address
   rule {
     action   = var.allow_rule_action
     priority = var.allow_rule_priority
     match {
-      expr {
-        expression = var.allow_rule_expression
+      versioned_expr = "SRC_IPS_V1"
+
+      config {
+        src_ip_ranges = var.allow_ip_ranges
       }
     }
     description = var.allow_rule_description
   }
 
-  # Deny rule for all other traffic
+  # Reject all traffic that hasn't been whitelisted.
   rule {
     action   = var.deny_rule_action
     priority = var.deny_rule_priority
     match {
-      expr {
-        expression = var.deny_rule_expression
+      versioned_expr = "SRC_IPS_V1"
+
+      config {
+        src_ip_ranges = var.deny_ip_ranges
       }
     }
     description = var.deny_rule_description
@@ -76,12 +80,20 @@ resource "google_compute_global_address" "apigee_global_ip" {
   project = var.project_id
 }
 
-# SSL Certificate for HTTPS Load Balancing
-resource "google_compute_ssl_certificate" "apigee_ssl" {
-  name         = var.ssl_certificate_name
-  project         = var.project_id
-  private_key  = file(var.ssl_private_key_path)
-  certificate  = file(var.ssl_certificate_path)
+# # SSL Certificate for HTTPS Load Balancing
+# resource "google_compute_ssl_certificate" "apigee_ssl" {
+#   name         = var.ssl_certificate_name
+#   project         = var.project_id
+#   private_key  = file(var.ssl_private_key_path)
+#   certificate  = file(var.ssl_certificate_path)
+# }
+
+resource "google_compute_managed_ssl_certificate" "apigee_ssl_certificate" {
+  name = "apigee-ssl-certificate"
+  project = var.project_id
+  managed {
+    domains = ["example.com"]  # Specify the domain for the certificate
+  }
 }
 
 # URL Map for Load Balancer
@@ -96,13 +108,13 @@ resource "google_compute_target_https_proxy" "apigee_https_proxy" {
   name            = var.apigee_https_proxy_name
   project         = var.project_id
   url_map        = google_compute_url_map.apigee_url_map.id
-  ssl_certificates = [google_compute_ssl_certificate.apigee_ssl.id]
+  ssl_certificates = [google_compute_managed_ssl_certificate.apigee_ssl_certificate.id]
 }
 
 # Global Forwarding Rule
 resource "google_compute_global_forwarding_rule" "apigee_forwarding_rule" {
   name       = var.apigee_forwarding_rule_name
-  project         = var.project_id
+  project     = var.project_id
   target     = google_compute_target_https_proxy.apigee_https_proxy.id
   ip_address = google_compute_global_address.apigee_global_ip.address
   port_range = "443"
@@ -122,6 +134,8 @@ resource "google_compute_backend_service" "apigee_backend" {
     for_each = google_compute_network_endpoint_group.apigee_neg
     content {
       group = backend.value.id
+      balancing_mode          = var.balancing_mode  
+      max_rate_per_endpoint   = var.max_rate_per_endpoint  
     }
   }
 
@@ -170,27 +184,30 @@ resource "google_dns_managed_zone" "apigee_dns_zone" {
   dns_name = var.dns_name
 }
 
+# Define the DNS Records dynamically for each environment/region
 resource "google_dns_record_set" "apigee_dns_record" {
-  name         = "${var.dns_name}"
+  for_each = var.dns_records  # Dynamically pass DNS records via a variable
+
+  name         = each.value
   project      = var.project_id
-  managed_zone = google_dns_managed_zone.apigee_dns_zone.name  
-  type         = "A" 
-  ttl          = var.dns_ttl  
-  rrdatas      = [google_compute_global_address.apigee_global_ip.address]  
+  managed_zone = google_dns_managed_zone.apigee_dns_zone.name
+  type         = "A"
+  ttl          = var.dns_ttl
+  rrdatas      = [google_compute_global_address.apigee_global_ip.address]
 }
 
 
 
 
 resource "google_compute_network_endpoint_group" "apigee_neg" {
-  for_each              = var.apigee_zones
+  for_each = var.apigee_zones
   name                  = "apigee-neg-${each.key}"
   project               = var.project_id
   network               = google_compute_network.apigee_network.id
   subnetwork            = google_compute_subnetwork.apigee_non_prod_subnet_runtime[each.key].id
   default_port          = var.backend_port
-  zone                  = each.key
-  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+  zone                  = each.value[0]
+  # network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
 }
 
 # resource "google_compute_service_attachment" "apigee_psc_attachment" {
@@ -203,7 +220,8 @@ resource "google_compute_network_endpoint_group" "apigee_neg" {
 #   enable_proxy_protocol = false
 #   connection_preference = "ACCEPT_AUTOMATIC"
 
-#   target_service = module.apigee_x_instance[each.key].google_apigee_instance.apigee_instance.id
+#   target_service = data.google_apigee_instance.apigee_instance.id
+
 # }
 
 # resource "google_compute_forwarding_rule" "psc_endpoint" {
@@ -223,82 +241,83 @@ resource "google_compute_network_endpoint_group" "apigee_neg" {
 
 
 
-resource "google_compute_global_address" "gke_global_ip" {
-  name = var.gke_global_ip_name
-  project = var.project_id
-}
 
-# URL Map for Backend Routing
-resource "google_compute_url_map" "gke_url_map" {
-  name            = var.gke_url_map_name
-  project         = var.project_id  
-  default_service = google_compute_backend_service.gke_backend.id
-}
+# resource "google_compute_global_address" "gke_global_ip" {
+#   name = var.gke_global_ip_name
+#   project = var.project_id
+# }
 
-# Target HTTPS Proxy for Backend
-resource "google_compute_target_https_proxy" "gke_https_proxy" {
-  name            = var.gke_https_proxy_name
-  project         = var.project_id
-  url_map         = google_compute_url_map.gke_url_map.id
-  ssl_certificates = [google_compute_ssl_certificate.apigee_ssl.id]
-}
+# # URL Map for Backend Routing
+# resource "google_compute_url_map" "gke_url_map" {
+#   name            = var.gke_url_map_name
+#   project         = var.project_id  
+#   default_service = google_compute_backend_service.gke_backend.id
+# }
 
-# Global Forwarding Rule (Apigee to GKE)
-resource "google_compute_global_forwarding_rule" "gke_forwarding_rule" {
-  name       = var.gke_forwarding_rule_name
-  project = var.project_id
-  target     = google_compute_target_https_proxy.gke_https_proxy.id
-  ip_address = google_compute_global_address.gke_global_ip.address
-  port_range = var.gke_lb_port
-}
+# # Target HTTPS Proxy for Backend
+# resource "google_compute_target_https_proxy" "gke_https_proxy" {
+#   name            = var.gke_https_proxy_name
+#   project         = var.project_id
+#   url_map         = google_compute_url_map.gke_url_map.id
+#   ssl_certificates = [google_compute_ssl_certificate.apigee_ssl.id]
+# }
 
-# Backend Service for apigee to GKE
-resource "google_compute_backend_service" "gke_backend" {
-  name                  = var.gke_backend_service_name
-  project = var.project_id
-  protocol              = "HTTPS"
-  timeout_sec           = var.gke_backend_timeout_sec
-  load_balancing_scheme = "EXTERNAL_MANAGED"
-  health_checks         = [google_compute_health_check.gke_health_check.id]
+# # Global Forwarding Rule (Apigee to GKE)
+# resource "google_compute_global_forwarding_rule" "gke_forwarding_rule" {
+#   name       = var.gke_forwarding_rule_name
+#   project = var.project_id
+#   target     = google_compute_target_https_proxy.gke_https_proxy.id
+#   ip_address = google_compute_global_address.gke_global_ip.address
+#   port_range = var.gke_lb_port
+# }
 
-  dynamic "backend" {
-    for_each = var.gke_zones
-    content {
-      group = google_compute_instance_group.gke_instance_group[backend.key].id  #need to call clients gke cluster here
-      balancing_mode  = "UTILIZATION"
-      max_utilization = 1.0
-      capacity_scaler = 1.0
-    }
-  }
-}
+# # Backend Service for apigee to GKE
+# resource "google_compute_backend_service" "gke_backend" {
+#   name                  = var.gke_backend_service_name
+#   project = var.project_id
+#   protocol              = "HTTPS"
+#   timeout_sec           = var.gke_backend_timeout_sec
+#   load_balancing_scheme = "EXTERNAL_MANAGED"
+#   health_checks         = [google_compute_health_check.gke_health_check.id]
 
-resource "google_compute_health_check" "gke_health_check" {
-  name               = var.gke_health_check_name
-  project = var.project_id
-  check_interval_sec = var.gke_health_check_interval
-  timeout_sec        = var.gke_health_check_timeout
-  healthy_threshold  = var.gke_healthy_threshold
-  unhealthy_threshold = var.gke_unhealthy_threshold
+#   dynamic "backend" {
+#     for_each = var.gke_zones
+#     content {
+#       group = google_compute_instance_group.gke_instance_group[backend.key].id  #need to call clients gke cluster here
+#       balancing_mode  = "UTILIZATION"
+#       max_utilization = 1.0
+#       capacity_scaler = 1.0
+#     }
+#   }
+# }
 
-  https_health_check {
-    port         = var.gke_health_check_port
-    request_path = var.gke_health_check_path
-  }
-}
+# resource "google_compute_health_check" "gke_health_check" {
+#   name               = var.gke_health_check_name
+#   project = var.project_id
+#   check_interval_sec = var.gke_health_check_interval
+#   timeout_sec        = var.gke_health_check_timeout
+#   healthy_threshold  = var.gke_healthy_threshold
+#   unhealthy_threshold = var.gke_unhealthy_threshold
+
+#   https_health_check {
+#     port         = var.gke_health_check_port
+#     request_path = var.gke_health_check_path
+#   }
+# }
 
 
-# Firewall rule to allow traffic from the Load Balancer to GKE
+# # Firewall rule to allow traffic from the Load Balancer to GKE
 
-resource "google_compute_firewall" "allow_lb_to_gke" {
-  name    = var.gke_firewall_rule_name
-  network = google_compute_network.apigee_network.id
-  project = var.project_id
+# resource "google_compute_firewall" "allow_lb_to_gke" {
+#   name    = var.gke_firewall_rule_name
+#   network = google_compute_network.apigee_network.id
+#   project = var.project_id
 
-  allow {
-    protocol = "tcp"
-    ports    = var.gke_firewall_ports
-  }
+#   allow {
+#     protocol = "tcp"
+#     ports    = var.gke_firewall_ports
+#   }
 
-  source_ranges = [google_compute_global_address.gke_global_ip.address]
-  target_tags   = var.gke_firewall_target_tags
-}
+#   source_ranges = [google_compute_global_address.gke_global_ip.address]
+#   target_tags   = var.gke_firewall_target_tags
+# }

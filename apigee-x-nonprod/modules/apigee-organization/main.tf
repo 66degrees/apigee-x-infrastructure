@@ -37,8 +37,8 @@ resource "google_apigee_organization" "apigee_org" {
 
 resource "google_apigee_environment" "apigee_env" {
   for_each        = { for env in local.env_pairs : env.env_name => env }
-  api_proxy_type  = each.value.api_proxy_type
-  deployment_type = each.value.deployment_type
+  # api_proxy_type  = each.value.api_proxy_type
+  # deployment_type = each.value.deployment_type
   name            = each.key
   org_id          = google_apigee_organization.apigee_org.id
 }

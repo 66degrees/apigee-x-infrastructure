@@ -18,7 +18,7 @@ output "global_ip" {
 
 output "ssl_certificate_id" {
   description = "The ID of the SSL certificate"
-  value       = google_compute_ssl_certificate.apigee_ssl.id
+  value       = google_compute_managed_ssl_certificate.apigee_ssl_certificate.id
 }
 
 output "load_balancer_url_map" {
@@ -36,27 +36,27 @@ output "firewall_rule_id" {
   value       = google_compute_firewall.allow_apigee.id
 }
 
-output "dns_zone_name" {
-  description = "The DNS zone name for Apigee"
-  value       = google_dns_managed_zone.apigee_dns_zone.name
-}
+# output "dns_zone_name" {
+#   description = "The DNS zone name for Apigee"
+#   value       = google_dns_managed_zone.apigee_dns_zone.name
+# }
 
-output "psc_attachment_ids" {
-  description = "Service attachment IDs for Apigee PSC"
-  value = {
-    for k, v in google_compute_service_attachment.apigee_psc_attachment : k => v.id
-  }
-}
+# output "psc_attachment_ids" {
+#   description = "Service attachment IDs for Apigee PSC"
+#   value = {
+#     for k, v in google_compute_service_attachment.apigee_psc_attachment : k => v.id
+#   }
+# }
 
-output "gke_global_ip" {
-  description = "Global IP address for Apigee to GKE Load Balancer"
-  value       = google_compute_global_address.gke_global_ip.address
-}
+# output "gke_global_ip" {
+#   description = "Global IP address for Apigee to GKE Load Balancer"
+#   value       = google_compute_global_address.gke_global_ip.address
+# }
 
-output "gke_backend_service_id" {
-  description = "The ID of the GKE backend service"
-  value       = google_compute_backend_service.gke_backend.id
-}
+# output "gke_backend_service_id" {
+#   description = "The ID of the GKE backend service"
+#   value       = google_compute_backend_service.gke_backend.id
+# }
 
 output "network" {
   description = "The Apigee network"

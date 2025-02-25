@@ -1,59 +1,47 @@
 project_id                 = "saas-seed-project"  #need to update nonprod project id
-analytics_region           = ""
-apigee_org_kms_keyring_name = ""
+analytics_region           = "us-central1"
+apigee_org_kms_keyring_name = "apigee-org-kms-keyring"
 org_key_rotation_period    = "2592000s"       # 30 days rotation period
 runtime_type               = "CLOUD"
 billing_type               = ""
-network                    = ""
+network                    = "test-vpc"
 
 # Apigee Environments – these define our non-prod environments
 apigee_environments = {
-  dev = {
-    api_proxy_type  = ""  # have to specify API Proxy Type for dev
-    deployment_type = ""  # have to specify Deployment Type for dev
+  development = {
+    api_proxy_type  = "PROGRAMMABLE"  # have to specify API Proxy Type for dev
+    deployment_type = "PROXY"  # have to specify Deployment Type for dev
   }
   staging = {
-    api_proxy_type  = ""  # have to specify API Proxy Type for staging
-    deployment_type = ""  # have to specify Deployment Type for staging
+    api_proxy_type  = "CONFIGURABLE"  # have to specify API Proxy Type for staging
+    deployment_type = "ARCHIVE"  # have to specify Deployment Type for staging
   }
 }
 
 # Apigee Environment Groups – defines groups with virtual hosts
 apigee_envgroups = {
   default = {
-    hostnames    = [""]  # Specify virtual hosts for the environment group
+    hostnames    = ["api.example.com"]  # Specify virtual hosts for the environment group
     environments = ["development", "staging"]
   }
 }
 
 # Apigee Instances – define each Apigee instance configuration and Multiple Instances Per Region
 apigee_instances = {
-  "us-central1-instance1" = {
+  "us-central1" = {
     region           = "us-central1"
-    ip_range         = "10.253.34.0/24"  # Subset of 10.253.32.0/19
+    ip_range         = "10.253.32.0/22" 
     environments     = ["Development", "Staging"]
-    key_name         = ""
-    keyring_location = ""
-    keyring_create   = true
-    key_labels       = {}
   },
-  "northamerica-northeast1-instance1" = {
+  "northamerica-northeast1" = {
     region           = "northamerica-northeast1"
-    ip_range         = "10.253.36.0/24"  # Subset of 10.253.32.0/19
+    ip_range         = "10.253.36.0/22"  
     environments     = ["Development", "Staging"]
-    key_name         = ""
-    keyring_location = ""
-    keyring_create   = true
-    key_labels       = {}
   },
-  "us-east4-instance1" = {
+  "us-east4" = {
     region           = "us-east4"
-    ip_range         = "10.253.38.0/24"  # Subset of 10.253.32.0/19
+    ip_range         = "10.253.40.0/22"  
     environments     = ["Development", "Staging"]
-    key_name         = ""
-    keyring_location = ""
-    keyring_create   = true
-    key_labels       = {}
   }
 }
 

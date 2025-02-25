@@ -24,11 +24,6 @@ variable "security_policy_name" {
   type        = string
 }
 
-variable "trusted_ip_ranges" {
-  description = "List of trusted IP ranges allowed to access Apigee"
-  type        = list(string)
-}
-
 variable "allow_rule_action" {
   description = "Action for the allow rule"
   type        = string
@@ -39,11 +34,10 @@ variable "allow_rule_priority" {
   type        = number
 }
 
-variable "allow_rule_expression" {
-  description = "Expression for the allow rule based on trusted IPs"
-  type        = string
+variable "allow_ip_ranges" {
+  description = "List of IPs allowed"
+  type        = list(string)
 }
-
 variable "allow_rule_description" {
   description = "Description for the allow rule"
   type        = string
@@ -60,10 +54,9 @@ variable "deny_rule_priority" {
   default     = 1000
 }
 
-variable "deny_rule_expression" {
-  description = "Expression to block all non-trusted traffic"
-  type        = string
-  default     = "true"
+variable "deny_ip_ranges" {
+  description = "List of IPs to deny"
+  type        = list(string)
 }
 
 variable "deny_rule_description" {
@@ -82,20 +75,20 @@ variable "apigee_global_ip_name" {
   type        = string
 }
 
-variable "ssl_certificate_name" {
-  description = "Name of the SSL certificate for HTTPS"
-  type        = string
-}
+# variable "ssl_certificate_name" {
+#   description = "Name of the SSL certificate for HTTPS"
+#   type        = string
+# }
 
-variable "ssl_private_key_path" {
-  description = "Path to the private key file"
-  type        = string
-}
+# variable "ssl_private_key_path" {
+#   description = "Path to the private key file"
+#   type        = string
+# }
 
-variable "ssl_certificate_path" {
-  description = "Path to the SSL certificate file"
-  type        = string
-}
+# variable "ssl_certificate_path" {
+#   description = "Path to the SSL certificate file"
+#   type        = string
+# }
 
 variable "apigee_url_map_name" {
   description = "Name of the URL Map"
@@ -127,6 +120,15 @@ variable "apigee_backend_port_name" {
   type        = string
 }
 
+variable "balancing_mode" {
+  description = "Balancing mode for the backend service"
+  type        = string
+}
+
+variable "max_rate_per_endpoint" {
+  description = "Maximum rate per endpoint"
+  type        = number
+}
 variable "apigee_health_check_name" {
   description = "Name of the health check"
   type        = string
@@ -167,7 +169,10 @@ variable "apigee_firewall_target_tags" {
   type        = list(string)
 }
 
-
+variable "trusted_ip_ranges" {
+  description = "List of trusted IP ranges allowed to access Apigee"
+  type        = list(string)
+}
 
 
 
@@ -189,6 +194,11 @@ variable "dns_ttl" {
   description = "TTL for DNS records"
   type        = number
 }
+variable "dns_records" {
+  type = map(string)
+}
+
+
 
 
 
@@ -199,103 +209,103 @@ variable "backend_port" {
   type        = number
 }
 
-
 variable "apigee_zones" {
-  description = "List of zones for Apigee NEG"
-  type        = map(string)
+  description = "Mapping of regions to their respective zones for Apigee NEG"
+  type        = map(list(string))
 }
 
-variable "apigee_regions" {
-  description = "List of regions for Apigee Private Service Connect"
-  type        = list(string)
-}
 
-variable "gke_global_ip_name" {
-  description = "Name of the GKE global IP"
-  type        = string
-}
+# variable "apigee_regions" {
+#   description = "List of regions for Apigee Private Service Connect"
+#   type        = list(string)
+# }
 
-variable "gke_url_map_name" {
-  description = "Name of the GKE URL Map"
-  type        = string
-}
+# variable "gke_global_ip_name" {
+#   description = "Name of the GKE global IP"
+#   type        = string
+# }
 
-variable "gke_https_proxy_name" {
-  description = "Name of the GKE Target HTTPS Proxy"
-  type        = string
-}
+# variable "gke_url_map_name" {
+#   description = "Name of the GKE URL Map"
+#   type        = string
+# }
 
-variable "gke_forwarding_rule_name" {
-  description = "Name of the GKE Global Forwarding Rule"
-  type        = string
-}
+# variable "gke_https_proxy_name" {
+#   description = "Name of the GKE Target HTTPS Proxy"
+#   type        = string
+# }
 
-variable "gke_backend_service_name" {
-  description = "Name of the GKE Backend Service"
-  type        = string
-}
+# variable "gke_forwarding_rule_name" {
+#   description = "Name of the GKE Global Forwarding Rule"
+#   type        = string
+# }
 
-variable "gke_backend_timeout_sec" {
-  description = "Timeout in seconds for the backend service"
-  type        = number
-}
+# variable "gke_backend_service_name" {
+#   description = "Name of the GKE Backend Service"
+#   type        = string
+# }
 
-variable "gke_zones" {
-  description = "List of zones for GKE instance groups"
-  type        = map(string)
-}
+# variable "gke_backend_timeout_sec" {
+#   description = "Timeout in seconds for the backend service"
+#   type        = number
+# }
 
-variable "gke_health_check_name" {
-  description = "Name of the GKE health check"
-  type        = string
-}
+# variable "gke_zones" {
+#   description = "List of zones for GKE instance groups"
+#   type        = map(string)
+# }
 
-variable "gke_health_check_port" {
-  description = "Port for the GKE health check"
-  type        = number
-}
+# variable "gke_health_check_name" {
+#   description = "Name of the GKE health check"
+#   type        = string
+# }
 
-variable "gke_health_check_path" {
-  description = "Health check request path"
-  type        = string
-}
+# variable "gke_health_check_port" {
+#   description = "Port for the GKE health check"
+#   type        = number
+# }
 
-variable "gke_health_check_interval" {
-  description = "Health check interval in seconds"
-  type        = number
-}
+# variable "gke_health_check_path" {
+#   description = "Health check request path"
+#   type        = string
+# }
 
-variable "gke_health_check_timeout" {
-  description = "Timeout for health checks"
-  type        = number
-}
+# variable "gke_health_check_interval" {
+#   description = "Health check interval in seconds"
+#   type        = number
+# }
 
-variable "gke_healthy_threshold" {
-  description = "Healthy threshold for health check"
-  type        = number
-}
+# variable "gke_health_check_timeout" {
+#   description = "Timeout for health checks"
+#   type        = number
+# }
 
-variable "gke_unhealthy_threshold" {
-  description = "Unhealthy threshold for health check"
-  type        = number
-}
+# variable "gke_healthy_threshold" {
+#   description = "Healthy threshold for health check"
+#   type        = number
+# }
 
-variable "gke_firewall_rule_name" {
-  description = "Name of the firewall rule allowing LB to GKE traffic"
-  type        = string
-}
+# variable "gke_unhealthy_threshold" {
+#   description = "Unhealthy threshold for health check"
+#   type        = number
+# }
 
-variable "gke_firewall_ports" {
-  description = "Allowed ports for GKE firewall"
-  type        = list(string)
-}
+# variable "gke_firewall_rule_name" {
+#   description = "Name of the firewall rule allowing LB to GKE traffic"
+#   type        = string
+# }
 
-variable "gke_firewall_target_tags" {
-  description = "Target tags for GKE firewall"
-  type        = list(string)
-}
+# variable "gke_firewall_ports" {
+#   description = "Allowed ports for GKE firewall"
+#   type        = list(string)
+# }
 
-variable "gke_lb_port" {
-  description = "Port for the GKE Load Balancer"
-  type        = string
-}
+# variable "gke_firewall_target_tags" {
+#   description = "Target tags for GKE firewall"
+#   type        = list(string)
+# }
+
+# variable "gke_lb_port" {
+#   description = "Port for the GKE Load Balancer"
+#   type        = string
+# }

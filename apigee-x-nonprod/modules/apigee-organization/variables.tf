@@ -23,7 +23,7 @@ variable "description" {
 variable "authorized_network" {
   description = "VPC network self link (requires service network peering enabled (Used in Apigee X only)."
   type        = string
-  default     = null
+  default     = "test-vpc"
 }
 
 variable "runtime_type" {

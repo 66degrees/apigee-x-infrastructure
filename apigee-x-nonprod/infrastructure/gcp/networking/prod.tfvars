@@ -1,4 +1,4 @@
-project_id   = "saas-seed-project"  #need to update prod project id
+project_id   = ""  #need to update prod project id
 network_name = "production-vpc"
 
 
@@ -25,21 +25,16 @@ subnet_regions = {
 
 
 
-security_policy_name = "apigee-prod-security-policy"
-
-trusted_ip_ranges = [
-  "",
-  ""
-]
+security_policy_name = "armor-security-policy"
 
 allow_rule_action   = "allow"
-allow_rule_priority = 100
-allow_rule_expression = "inIpRange(origin.ip, \"192.168.1.0/24\") || inIpRange(origin.ip, \"10.0.0.0/16\")"
+allow_rule_priority = 1000
+allow_ip_ranges = ["192.0.2.0/24"]
 allow_rule_description = "Allow only trusted sources to access Apigee"
 
-deny_rule_action     = ""
-deny_rule_priority   = 1000
-deny_rule_expression = "true"
+deny_rule_action     = "deny(403)"
+deny_rule_priority   = 2147483647
+deny_ip_ranges = ["*"]
 deny_rule_description = "Block all other traffic"
 
 
@@ -70,7 +65,10 @@ apigee_health_check_path = "/health"
 apigee_firewall_rule_name = "allow-prod-apigee-traffic"
 apigee_firewall_ports = ["", ""]
 apigee_firewall_target_tags = ["apigee-prod-runtime"]
-
+trusted_ip_ranges = [
+  "192.168.1.0/24",
+  "10.0.0.0/16"
+]
 
 
 

@@ -1,4 +1,4 @@
-project_id = "saas-seed-project"  #need to update prod project id
+project_id = ""  #need to update prod project id
 
 apigee_role_developer = ""
 apigee_role_admin = ""
