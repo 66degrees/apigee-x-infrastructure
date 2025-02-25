@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket  = "terraform-state-nonprod" #create the bucket in GCP console
+    bucket  = "apigee-state-bucket" #create the bucket in GCP console
     prefix  = "infrastructure/state"
   }
 }
