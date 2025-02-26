@@ -60,28 +60,31 @@ max_rate_per_endpoint = 1000
 apigee_health_check_name = "apigee-nonprod-health-check"
 apigee_health_check_interval = 10
 apigee_health_check_timeout = 5
+apigee_healthy_threshold = 2
+apigee_unhealthy_threshold    = 2
 apigee_health_check_port = 8443
 apigee_health_check_path = "/health"
 
 apigee_firewall_rule_name = "allow-nonprod-apigee-traffic"
 apigee_firewall_ports = ["", ""]
 apigee_firewall_target_tags = ["apigee-nonprod-runtime"]
-trusted_ip_ranges = [
-  "192.168.1.0/24",
-  "10.0.0.0/16"
-]
 
 
 
 
-dns_zone_name = "apigee-nonprod-dns-zone"
-dns_name      = "apigee.appliedcloudservices.co.uk."  #need to update nonprod dns name
+dns_zones = {
+    "co.uk" = "apigee.appliedcloudservices.co.uk."
+    "ca"    = "apigee.appliedcloudservices.ca."
+    "com"   = "apigee.appliedcloudservices.com."
+  }
+# dns_zone_name = "apigee-nonprod-dns-zone"
+# dns_name      = "appliedcloudservices"  #need to update nonprod dns name
 dns_ttl       = 300
 dns_records = {
-  "api-dev-uk-temp" = "api-dev-temp.apigee.appliedcloudservices.co.uk."
-  "api-dev-ca-temp" = "api-dev-temp.apigee.appliedcloudservices.ca."
-  "api-dev-us-temp" = "api-dev-temp.apigee.appliedcloudservices.com."
-}
+    "api-dev-temp.co.uk" = "api-dev-temp.apigee.appliedcloudservices.co.uk."
+    "api-dev-temp.ca"    = "api-dev-temp.apigee.appliedcloudservices.ca."
+    "api-dev-temp.com"   = "api-dev-temp.apigee.appliedcloudservices.com."
+  }
 
 
 backend_port = 443
@@ -92,33 +95,46 @@ apigee_zones = {
 }
 
 
-# apigee_regions = ["northamerica-northeast1", "us-central1", "us-east4"]
+apigee_regions = ["northamerica-northeast1", "us-central1", "us-east4"]
 
 
-# gke_global_ip_name         = "gke-nonprod-global-ip"
-# gke_url_map_name           = "gke-nonprod-url-map"
-# gke_https_proxy_name       = "gke-nonprod-https-proxy"
-# gke_forwarding_rule_name   = "gke-nonprod-global-lb"
-# gke_backend_service_name   = "gke-nonprod-backend-service"
-# gke_backend_timeout_sec    = 30
+gke_global_ip_name         = "gke-nonprod-global-ip"
+gke_url_map_name           = "gke-nonprod-url-map"
+gke_https_proxy_name       = "gke-nonprod-https-proxy"
+gke_forwarding_rule_name   = "gke-nonprod-global-lb"
+gke_lb_port                = "443"
+gke_backend_service_name   = "gke-nonprod-backend-service"
+gke_backend_timeout_sec    = 10
 
-# gke_zones = {
-#   "northamerica-northeast1" = ""
-#   "us-central1"             = ""
-#   "us-east4"                = ""
-# }
+gke_zones = {
+  "northamerica-northeast1" = ""
+  "us-central1"             = ""
+  "us-east4"                = ""
+}
 
 
-# gke_health_check_name      = "gke-nonprod-health-check"
-# gke_health_check_port      = 443
-# gke_health_check_path      = "/health"
-# gke_health_check_interval  = 5
-# gke_health_check_timeout   = 5
-# gke_healthy_threshold      = 2
-# gke_unhealthy_threshold    = 2
+gke_health_check_name      = "gke-nonprod-health-check"
+gke_health_check_port      = 443
+gke_health_check_path      = "/health"
+gke_health_check_interval  = 10
+gke_health_check_timeout   = 5
+gke_healthy_threshold      = 2
+gke_unhealthy_threshold    = 2
 
-# gke_firewall_rule_name   = "gke-nonprod-firewall-rule"
-# gke_firewall_ports       = ["", ""]
-# gke_firewall_target_tags = ["gke-lb"]
+gke_firewall_rule_name   = "gke-nonprod-firewall-rule"
+gke_firewall_ports       = ["", ""]
+gke_firewall_target_tags = ["gke-lb"]
 
-# gke_lb_port = ""
+
+
+
+
+
+
+
+
+
+
+
+
+

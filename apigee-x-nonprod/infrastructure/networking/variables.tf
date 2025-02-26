@@ -144,6 +144,16 @@ variable "apigee_health_check_timeout" {
   type        = number
 }
 
+variable "apigee_healthy_threshold" {
+  description = "Healthy threshold for health check"
+  type        = number
+}
+
+variable "apigee_unhealthy_threshold" {
+  description = "Unhealthy threshold for health check"
+  type        = number
+}
+
 variable "apigee_health_check_port" {
   description = "Port for health checks"
   type        = number
@@ -169,26 +179,21 @@ variable "apigee_firewall_target_tags" {
   type        = list(string)
 }
 
-variable "trusted_ip_ranges" {
-  description = "List of trusted IP ranges allowed to access Apigee"
-  type        = list(string)
-}
 
 
 
 
 
 
+# variable "dns_zone_name" {
+#   description = "Name of the DNS zone"
+#   type        = string
+# }
 
-variable "dns_zone_name" {
-  description = "Name of the DNS zone"
-  type        = string
-}
-
-variable "dns_name" {
-  description = "DNS name for Apigee"
-  type        = string
-}
+# variable "dns_name" {
+#   description = "DNS name for Apigee"
+#   type        = string
+# }
 
 variable "dns_ttl" {
   description = "TTL for DNS records"
@@ -198,6 +203,14 @@ variable "dns_records" {
   type = map(string)
 }
 
+variable "dns_zones" {
+  type = map(string)
+  default = {
+    "co.uk" = "apigee.appliedcloudservices.co.uk."
+    "ca"    = "apigee.appliedcloudservices.ca."
+    "com"   = "apigee.appliedcloudservices.com."
+  }
+}
 
 
 
@@ -215,97 +228,132 @@ variable "apigee_zones" {
 }
 
 
-# variable "apigee_regions" {
-#   description = "List of regions for Apigee Private Service Connect"
-#   type        = list(string)
-# }
+variable "apigee_regions" {
+  description = "List of regions for Apigee Private Service Connect"
+  type        = list(string)
+}
 
-# variable "gke_global_ip_name" {
-#   description = "Name of the GKE global IP"
-#   type        = string
-# }
+variable "gke_global_ip_name" {
+  description = "Name of the GKE global IP"
+  type        = string
+}
 
-# variable "gke_url_map_name" {
-#   description = "Name of the GKE URL Map"
-#   type        = string
-# }
+variable "gke_url_map_name" {
+  description = "Name of the GKE URL Map"
+  type        = string
+}
 
-# variable "gke_https_proxy_name" {
-#   description = "Name of the GKE Target HTTPS Proxy"
-#   type        = string
-# }
+variable "gke_https_proxy_name" {
+  description = "Name of the GKE Target HTTPS Proxy"
+  type        = string
+}
 
-# variable "gke_forwarding_rule_name" {
-#   description = "Name of the GKE Global Forwarding Rule"
-#   type        = string
-# }
+variable "gke_forwarding_rule_name" {
+  description = "Name of the GKE Global Forwarding Rule"
+  type        = string
+}
 
-# variable "gke_backend_service_name" {
-#   description = "Name of the GKE Backend Service"
-#   type        = string
-# }
+variable "gke_backend_service_name" {
+  description = "Name of the GKE Backend Service"
+  type        = string
+}
 
-# variable "gke_backend_timeout_sec" {
-#   description = "Timeout in seconds for the backend service"
-#   type        = number
-# }
+variable "gke_backend_timeout_sec" {
+  description = "Timeout in seconds for the backend service"
+  type        = number
+}
 
-# variable "gke_zones" {
-#   description = "List of zones for GKE instance groups"
-#   type        = map(string)
-# }
+variable "gke_zones" {
+  description = "List of zones for GKE instance groups"
+  type        = map(string)
+}
 
-# variable "gke_health_check_name" {
-#   description = "Name of the GKE health check"
-#   type        = string
-# }
+variable "gke_health_check_name" {
+  description = "Name of the GKE health check"
+  type        = string
+}
 
-# variable "gke_health_check_port" {
-#   description = "Port for the GKE health check"
-#   type        = number
-# }
+variable "gke_health_check_port" {
+  description = "Port for the GKE health check"
+  type        = number
+}
 
-# variable "gke_health_check_path" {
-#   description = "Health check request path"
-#   type        = string
-# }
+variable "gke_health_check_path" {
+  description = "Health check request path"
+  type        = string
+}
 
-# variable "gke_health_check_interval" {
-#   description = "Health check interval in seconds"
-#   type        = number
-# }
+variable "gke_health_check_interval" {
+  description = "Health check interval in seconds"
+  type        = number
+}
 
-# variable "gke_health_check_timeout" {
-#   description = "Timeout for health checks"
-#   type        = number
-# }
+variable "gke_health_check_timeout" {
+  description = "Timeout for health checks"
+  type        = number
+}
 
-# variable "gke_healthy_threshold" {
-#   description = "Healthy threshold for health check"
-#   type        = number
-# }
+variable "gke_healthy_threshold" {
+  description = "Healthy threshold for health check"
+  type        = number
+}
 
-# variable "gke_unhealthy_threshold" {
-#   description = "Unhealthy threshold for health check"
-#   type        = number
-# }
+variable "gke_unhealthy_threshold" {
+  description = "Unhealthy threshold for health check"
+  type        = number
+}
 
-# variable "gke_firewall_rule_name" {
-#   description = "Name of the firewall rule allowing LB to GKE traffic"
-#   type        = string
-# }
+variable "gke_firewall_rule_name" {
+  description = "Name of the firewall rule allowing LB to GKE traffic"
+  type        = string
+}
 
-# variable "gke_firewall_ports" {
-#   description = "Allowed ports for GKE firewall"
-#   type        = list(string)
-# }
+variable "gke_firewall_ports" {
+  description = "Allowed ports for GKE firewall"
+  type        = list(string)
+}
 
-# variable "gke_firewall_target_tags" {
-#   description = "Target tags for GKE firewall"
-#   type        = list(string)
-# }
+variable "gke_firewall_target_tags" {
+  description = "Target tags for GKE firewall"
+  type        = list(string)
+}
 
-# variable "gke_lb_port" {
-#   description = "Port for the GKE Load Balancer"
-#   type        = string
-# }
+variable "gke_lb_port" {
+  description = "Port for the GKE Load Balancer"
+  type        = string
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

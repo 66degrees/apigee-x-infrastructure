@@ -34,18 +34,8 @@ output "environments" {
   value       = module.apigee.envs
 }
 
-# output "apigee_instance_ids" {
-#   description = "The Apigee instance IDs from the apigee-x-instance module"
-#   value       = module.apigee-x-instance[*].apigee_instance_id
-# }
-
-
-# output "apigee_instance_id" {
-#   value = module.apigee_x_instance[each.key].google_apigee_instance.apigee_instance.id
-# }
-
-# output "apigee_x_instance" {
-#   value = {
-#     for k, v in module.apigee_x_instance : k => v.google_apigee_instance
-#   }
-# }
+output "apigee_psc_service_name" {
+  value = {
+    for name, instance in module.apigee-x-instance : instance.instance.location => instance.service_attachment
+  }
+}

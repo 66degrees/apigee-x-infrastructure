@@ -62,3 +62,12 @@ output "network" {
   description = "The Apigee network"
   value       = google_compute_network.apigee_network.self_link
 }
+
+
+
+output "psc_attachment_ids" {
+  description = "Service attachment IDs for Apigee PSC"
+  value = {
+    for k, v in google_compute_service_attachment.apigee_psc_attachment : k => v.id
+  }
+}
