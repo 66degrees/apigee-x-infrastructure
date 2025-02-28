@@ -12,7 +12,7 @@ variable "subnet_regions" {
   description = "Map of regions with CIDR ranges for runtime and control subnets"
   type = map(object({
     region       = string
-    runtime_cidr   = string
+    runtime_cidr = string
     control_cidr = string
   }))
 }
@@ -75,20 +75,16 @@ variable "apigee_global_ip_name" {
   type        = string
 }
 
-# variable "ssl_certificate_name" {
-#   description = "Name of the SSL certificate for HTTPS"
-#   type        = string
-# }
+variable "domains" {
+  description = "List of domains for the managed SSL certificate"
+  type        = list(string)
+}
 
-# variable "ssl_private_key_path" {
-#   description = "Path to the private key file"
-#   type        = string
-# }
+variable "ssl_certificate_name" {
+  description = "The name of the managed SSL certificate"
+  type        = string
+}
 
-# variable "ssl_certificate_path" {
-#   description = "Path to the SSL certificate file"
-#   type        = string
-# }
 
 variable "apigee_url_map_name" {
   description = "Name of the URL Map"
@@ -185,15 +181,7 @@ variable "apigee_firewall_target_tags" {
 
 
 
-# variable "dns_zone_name" {
-#   description = "Name of the DNS zone"
-#   type        = string
-# }
 
-# variable "dns_name" {
-#   description = "DNS name for Apigee"
-#   type        = string
-# }
 
 variable "dns_ttl" {
   description = "TTL for DNS records"
@@ -222,138 +210,12 @@ variable "backend_port" {
   type        = number
 }
 
-variable "apigee_zones" {
-  description = "Mapping of regions to their respective zones for Apigee NEG"
-  type        = map(list(string))
-}
-
+# variable "apigee_regions" {
+#   description = "List of regions for Apigee Private Service Connect"
+#   type        = list(string)
+# }
 
 variable "apigee_regions" {
-  description = "List of regions for Apigee Private Service Connect"
+  description = "List of regions for Apigee PSC Network Endpoint Groups."
   type        = list(string)
 }
-
-variable "gke_global_ip_name" {
-  description = "Name of the GKE global IP"
-  type        = string
-}
-
-variable "gke_url_map_name" {
-  description = "Name of the GKE URL Map"
-  type        = string
-}
-
-variable "gke_https_proxy_name" {
-  description = "Name of the GKE Target HTTPS Proxy"
-  type        = string
-}
-
-variable "gke_forwarding_rule_name" {
-  description = "Name of the GKE Global Forwarding Rule"
-  type        = string
-}
-
-variable "gke_backend_service_name" {
-  description = "Name of the GKE Backend Service"
-  type        = string
-}
-
-variable "gke_backend_timeout_sec" {
-  description = "Timeout in seconds for the backend service"
-  type        = number
-}
-
-variable "gke_zones" {
-  description = "List of zones for GKE instance groups"
-  type        = map(string)
-}
-
-variable "gke_health_check_name" {
-  description = "Name of the GKE health check"
-  type        = string
-}
-
-variable "gke_health_check_port" {
-  description = "Port for the GKE health check"
-  type        = number
-}
-
-variable "gke_health_check_path" {
-  description = "Health check request path"
-  type        = string
-}
-
-variable "gke_health_check_interval" {
-  description = "Health check interval in seconds"
-  type        = number
-}
-
-variable "gke_health_check_timeout" {
-  description = "Timeout for health checks"
-  type        = number
-}
-
-variable "gke_healthy_threshold" {
-  description = "Healthy threshold for health check"
-  type        = number
-}
-
-variable "gke_unhealthy_threshold" {
-  description = "Unhealthy threshold for health check"
-  type        = number
-}
-
-variable "gke_firewall_rule_name" {
-  description = "Name of the firewall rule allowing LB to GKE traffic"
-  type        = string
-}
-
-variable "gke_firewall_ports" {
-  description = "Allowed ports for GKE firewall"
-  type        = list(string)
-}
-
-variable "gke_firewall_target_tags" {
-  description = "Target tags for GKE firewall"
-  type        = list(string)
-}
-
-variable "gke_lb_port" {
-  description = "Port for the GKE Load Balancer"
-  type        = string
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

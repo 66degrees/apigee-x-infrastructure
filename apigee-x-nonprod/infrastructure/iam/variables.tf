@@ -3,22 +3,11 @@ variable "project_id" {
   type        = string
 }
 
-variable "apigee_role_developer" {
+variable "apigee_role" {
   description = "The IAM role for Apigee developers."
   type        = string
 }
-
-variable "apigee_role_admin" {
-  description = "The IAM role for Apigee admins."
-  type        = string
-}
-
 variable "okta_group_developers" {
   description = "The Okta group for developers."
-  type        = string
-}
-
-variable "okta_group_admins" {
-  description = "The Okta group for admins."
   type        = string
 }

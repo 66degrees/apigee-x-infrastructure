@@ -20,11 +20,11 @@ variable "description" {
   default     = "Apigee Organization created by tf module"
 }
 
-variable "authorized_network" {
-  description = "VPC network self link (requires service network peering enabled (Used in Apigee X only)."
-  type        = string
-  default     = "test-vpc"
-}
+# variable "authorized_network" {
+#   description = "VPC network self link (requires service network peering enabled (Used in Apigee X only)."
+#   type        = string
+#   default     = "test-vpc"
+# }
 
 variable "runtime_type" {
   description = "Apigee runtime type. Must be `CLOUD` or `HYBRID`."
@@ -72,3 +72,14 @@ variable "apigee_envgroups" {
   }))
   default = {}
 }
+
+
+variable "target_servers" {
+  type = map(object({
+    env      = string
+    host     = string
+    port     = number
+    protocol = string
+  }))
+}
+

@@ -22,15 +22,17 @@ resource "google_project_service_identity" "apigee_sa" {
 # }
 
 module "apigee" {
-  source                  = "./modules/apigee-organization"
-  project_id              = var.project_id
-  analytics_region        = var.analytics_region
-  runtime_type            = var.runtime_type
-  billing_type            = var.billing_type
-  authorized_network      = var.network
+  source           = "./modules/apigee-organization"
+  project_id       = var.project_id
+  analytics_region = var.analytics_region
+  runtime_type     = var.runtime_type
+  billing_type     = var.billing_type
+  # authorized_network      = var.network
   # database_encryption_key = module.kms-org-db.key_ids["org-db"]
-  apigee_environments     = var.apigee_environments
-  apigee_envgroups        = var.apigee_envgroups
+  apigee_environments = var.apigee_environments
+  apigee_envgroups    = var.apigee_envgroups
+  target_servers      = var.target_servers
+
   depends_on = [
     google_project_service_identity.apigee_sa,
     # module.kms-org-db.id

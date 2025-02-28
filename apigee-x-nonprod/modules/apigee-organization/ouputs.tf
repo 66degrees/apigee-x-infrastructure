@@ -22,3 +22,13 @@ output "subscription_type" {
   description = "Apigee subscription type."
   value       = google_apigee_organization.apigee_org.subscription_type
 }
+
+output "target_server_ids" {
+  description = "A map of the created Apigee target server IDs."
+  value       = { for key, ts in google_apigee_target_server.gke_target_servers : key => ts.id }
+}
+
+output "target_server_names" {
+  description = "A map of the created Apigee target server names."
+  value       = { for key, ts in google_apigee_target_server.gke_target_servers : key => ts.name }
+}

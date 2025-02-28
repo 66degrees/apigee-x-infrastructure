@@ -8,10 +8,10 @@ variable "analytics_region" {
   type        = string
 }
 
-variable "network" {
-  description = "Network (self-link) to peer with the Apigee tennant project."
-  type        = string
-}
+# variable "network" {
+#   description = "Network (self-link) to peer with the Apigee tennant project."
+#   type        = string
+# }
 
 variable "billing_type" {
   description = "Billing type of the Apigee organization."
@@ -58,13 +58,13 @@ variable "apigee_instances" {
 variable "org_key_rotation_period" {
   description = "Rotaton period for the organization DB encryption key"
   type        = string
-  default     = "2592000s"  #30days
+  default     = "2592000s" #30days
 }
 
 variable "instance_key_rotation_period" {
   description = "Rotaton period for the instance disk encryption key"
   type        = string
-  default     = "2592000s"  #30days
+  default     = "2592000s" #30days
 }
 
 variable "apigee_org_kms_keyring_name" {
@@ -80,4 +80,13 @@ variable "runtime_type" {
     condition     = contains(["CLOUD", "HYBRID"], var.runtime_type)
     error_message = "Allowed values for runtime_type \"CLOUD\" or \"HYBRID\"."
   }
+}
+
+variable "target_servers" {
+  type = map(object({
+    env      = string
+    host     = string
+    port     = number
+    protocol = string
+  }))
 }

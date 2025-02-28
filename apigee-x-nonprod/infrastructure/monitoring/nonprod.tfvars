@@ -1,4 +1,4 @@
-project_id     = "saas-seed-project"  #need to update nonprod project id
+project_id = "apigee-x-919726cd" 
 
 dashboard_files = {
   cloud-storage          = "dashboards_json_file/cloud-storage-monitoring.json"

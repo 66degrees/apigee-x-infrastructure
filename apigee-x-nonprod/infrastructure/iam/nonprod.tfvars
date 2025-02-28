@@ -1,8 +1,3 @@
-project_id = "saas-seed-project"  
-
-apigee_role_developer = "developers@example.com"
-apigee_role_admin = "admins@example.com"
-
-
-okta_group_developers = "developers@example.com"
-okta_group_admins = "admins@example.com"
+project_id            = "apigee-x-919726cd"
+okta_group_developers = "apigeex-developers@appliedcloudplatform.com"
+apigee_role           = "roles/apigeex-developers"

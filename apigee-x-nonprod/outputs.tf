@@ -39,3 +39,13 @@ output "apigee_psc_service_name" {
     for name, instance in module.apigee-x-instance : instance.instance.location => instance.service_attachment
   }
 }
+
+output "gke_target_server_ids" {
+  description = "Map of Apigee target server IDs for GKE load balancers."
+  value       = module.apigee.target_server_ids
+}
+
+output "gke_target_server_names" {
+  description = "Map of Apigee target server names for GKE load balancers."
+  value       = module.apigee.target_server_names
+}
