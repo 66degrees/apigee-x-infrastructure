@@ -18,25 +18,26 @@ apigee-x-nonprod/*.tfstate.backup
 # Ignore lock files in the apigee-x-nonprod directory
 apigee-x-nonprod/.terraform.lock.hcl
 
-
+# Ignore .terraform directories only in the apigee-x-prod directory
 apigee-x-prod/infrastucture/gcp/iam/.terraform/*
 apigee-x-prod/infrastucture/gcp/iam/*.tfstate
 apigee-x-prod/infrastucture/gcp/iam/*.tfstate.backup
 apigee-x-prod/infrastucture/gcp/iam/.terraform.lock.hcl
 
 
-
+# Ignore state files in the apigee-x-prod directory
 apigee-x-prod/infrastucture/gcp/network/.terraform/*
 apigee-x-prod/infrastucture/gcp/network/*.tfstate
 apigee-x-prod/infrastucture/gcp/network/*.tfstate.backup
 apigee-x-prod/infrastucture/gcp/network/.terraform.lock.hcl
 
+# Ignore lock files in the apigee-x-prod directory
 apigee-x-prod/infrastucture/gcp/monitoring/.terraform/*
 apigee-x-prod/infrastucture/gcp/monitoring/*.tfstate
 apigee-x-prod/infrastucture/gcp/monitoring/*.tfstate.backup
 apigee-x-prod/infrastucture/gcp/monitoring/.terraform.lock.hcl
 
-
+# Ignore .terraform directories only in the apigee-x-prod directory
 apigee-x-prod/modules/.terraform/*
 apigee-x-prod/modules/*.tfstate
 apigee-x-prod/modules/*.tfstate.backup

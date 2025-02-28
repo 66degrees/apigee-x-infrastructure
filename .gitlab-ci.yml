@@ -1,141 +1,137 @@
-stages:
-  - validate
-  - test
-  - plan
-  - apply
+# stages:
+#   - validate
+#   - test
+#   - plan
+#   - apply
 
-variables:
-  GCP_PROJECT_ID: "your-gcp-project-${ENVIRONMENT}"
-  TF_STATE_BUCKET: "terraform-state-${ENVIRONMENT}"
-  APIGEE_ORG: "apigee-${ENVIRONMENT}-org"
-  GOOGLE_APPLICATION_CREDENTIALS: "/tmp/gcp-key.json"
+# variables:
+#   TF_STATE_BUCKET: "terraform-state-${ENVIRONMENT}"
+#   APIGEE_ORG: "apigee-${ENVIRONMENT}-org"
 
-before_script:
-  - echo "Setting up GCP authentication..."
-  - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d > $GOOGLE_APPLICATION_CREDENTIALS
-  - gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-  - gcloud config set project $GCP_PROJECT_ID
-  - gcloud projects list
+# before_script:
+#   - echo "Setting up GCP authentication..."
+#   - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d > $GOOGLE_CREDENTIALS
+#   - gcloud auth activate-service-account --key-file=$GOOGLE_CREDENTIALS
+#   - gcloud config set project $GCP_PROJECT_ID
+#   - gcloud projects list
 
-validate:
-  stage: validate
-  parallel:
-    matrix:
-      - TERRAFORM_MODULE_PATH: 
-          - apigee-x-nonprod/infrastructure/gcp/folders
-          - apigee-x-nonprod/infrastructure/gcp/iam
-          - apigee-x-nonprod/infrastructure/gcp/monitoring
-          - apigee-x-nonprod/infrastructure/gcp/networking
-          - apigee-x-nonprod/infrastructure/gcp/projects
-      - TERRAFORM_MODULE_PATH: 
-          - apigee-x-nonprod/modules/apigee-organization
-          - apigee-x-nonprod/modules/apigee-x-instance
-          - apigee-x-nonprod/modules/kms
+# validate:
+#   stage: validate
+#   parallel:
+#     matrix:
+#       - TERRAFORM_MODULE_PATH: 
+#           - apigee-x-nonprod/infrastructure/folders
+#           - apigee-x-nonprod/infrastructure/iam
+#           - apigee-x-nonprod/infrastructure/monitoring
+#           - apigee-x-nonprod/infrastructure/networking
+#           - apigee-x-nonprod/infrastructure/projects
+#       - TERRAFORM_MODULE_PATH: 
+#           - apigee-x-nonprod
 
-  script:
-    - echo "Validating Terraform for $ENVIRONMENT"
-    - cd $TERRAFORM_MODULE_PATH
-    - terraform init -backend-config="../../../backend.tf"
-    - terraform validate
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      variables:
-        ENVIRONMENT: "prod"
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-      variables:
-        ENVIRONMENT: "nonprod"
+#   script:
+#     - echo "Validating Terraform for $ENVIRONMENT"
+#     - cd $TERRAFORM_MODULE_PATH
+#     - terraform init -backend-config="../../../backend.tf"
+#     - terraform validate
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       variables:
+#         ENVIRONMENT: "prod"
+#     - if: '$CI_COMMIT_BRANCH == "development"'
+#       variables:
+#         ENVIRONMENT: "nonprod"
 
 
-test:
-  stage: test
-  script:
-    - echo "Running Terraform Security and Compliance Tests"
-    - cd $TERRAFORM_MODULE_PATH
-    - terraform init -backend-config="backend.tf"
-    - terraform fmt -check
-    - terraform validate
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      variables:
-        ENVIRONMENT: "prod"
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-      variables:
-        ENVIRONMENT: "nonprod"
-  needs:
-    - validate
+# test:
+#   stage: test
+#   script:
+#     - echo "Running Terraform Security and Compliance Tests"
+#     - cd $TERRAFORM_MODULE_PATH
+#     - terraform init -backend-config="backend.tf"
+#     - terraform fmt -check
+#     - terraform validate
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       variables:
+#         ENVIRONMENT: "prod"
+#     - if: '$CI_COMMIT_BRANCH == "development"'
+#       variables:
+#         ENVIRONMENT: "nonprod"
+#   needs:
+#     - validate
 
-plan_nonprod:
-  stage: plan
-  script:
-    - echo "Planning Terraform changes for Non-Prod ($ENVIRONMENT)"
-    - cd $TERRAFORM_MODULE_PATH
-    - terraform init -backend-config="../../../backend.tf"
-    - terraform plan -var-file="nonprod.tfvars" -out=tfplan-nonprod
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-      variables:
-        ENVIRONMENT: "nonprod"
-    - changes:
-        - apigee-x-nonprod/infrastructure/gcp/**/*  
-        - apigee-x-nonprod/modules/**/*  
-        - apigee-x-nonprod/main.tf
-        - apigee-x-nonprod/nonprod.tfvars
-        - backend.tf
-        - provider.tf
-        - .gitlab-ci.yml  
-  needs:
-    - test
+# plan_nonprod:
+#   stage: plan
+#   script:
+#     - echo "Planning Terraform changes for Non-Prod ($ENVIRONMENT)"
+#     - cd $TERRAFORM_MODULE_PATH
+#     - terraform init -backend-config="../../../backend.tf"
+#     - terraform plan -var-file="nonprod.tfvars" -out=tfplan-nonprod
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "development"'
+#       variables:
+#         ENVIRONMENT: "nonprod"
+#     - changes:
+#         - apigee-x-nonprod/infrastructure/**/*  
+#         - apigee-x-nonprod/modules/**/*  
+#         - apigee-x-nonprod/main.tf
+#         - apigee-x-nonprod/nonprod.tfvars
+#         - backend.tf
+#         - provider.tf
+#         - .gitlab-ci.yml  
+#   needs:
+#     - test
 
-plan_prod:
-  stage: plan
-  script:
-    - echo "Planning Terraform changes for Production ($ENVIRONMENT)"
-    - cd $TERRAFORM_MODULE_PATH
-    - terraform init -backend-config="../../../backend.tf"
-    - terraform plan -var-file="prod.tfvars" -out=tfplan-prod
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      variables:
-        ENVIRONMENT: "prod"
-    - changes:
-        - apigee-x-nonprod/infrastructure/gcp/**/*  
-        - apigee-x-nonprod/modules/**/*  
-        - apigee-x-nonprod/main.tf
-        - apigee-x-nonprod/prod.tfvars
-        - backend.tf
-        - provider.tf
-        - .gitlab-ci.yml  
-  needs:
-    - test
-  when: manual  # manual approval required
+# plan_prod:
+#   stage: plan
+#   script:
+#     - echo "Planning Terraform changes for Production ($ENVIRONMENT)"
+#     - cd $TERRAFORM_MODULE_PATH
+#     - terraform init -backend-config="../../../backend.tf"
+#     - terraform plan -var-file="prod.tfvars" -out=tfplan-prod
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       variables:
+#         ENVIRONMENT: "prod"
+#     - changes:
+#         - apigee-x-nonprod/infrastructure/**/*  
+#         - apigee-x-nonprod/modules/**/*  
+#         - apigee-x-nonprod/main.tf
+#         - apigee-x-nonprod/prod.tfvars
+#         - backend.tf
+#         - provider.tf
+#         - .gitlab-ci.yml  
+#   needs:
+#     - test
+#   when: manual  # manual approval required
 
 
-apply_nonprod:
-  stage: apply_nonprod
-  script:
-    - echo "Applying Terraform for Non-Prod ($ENVIRONMENT)"
-    - cd $TERRAFORM_MODULE_PATH
-    - terraform apply -auto-approve tfplan-nonprod
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-      variables:
-        ENVIRONMENT: "nonprod"
-  needs:
-    - plan_nonprod
+# apply_nonprod:
+#   stage: apply_nonprod
+#   script:
+#     - echo "Applying Terraform for Non-Prod ($ENVIRONMENT)"
+#     - cd $TERRAFORM_MODULE_PATH
+#     - terraform apply -auto-approve tfplan-nonprod
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "development"'
+#       variables:
+#         ENVIRONMENT: "nonprod"
+#   needs:
+#     - plan_nonprod
 
-apply_prod:
-  stage: apply_prod
-  script:
-    - echo "Applying Terraform for Production ($ENVIRONMENT)"
-    - cd $TERRAFORM_MODULE_PATH
-    - terraform apply -auto-approve tfplan-prod
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      variables:
-        ENVIRONMENT: "prod"
-  when: manual  
-  needs:
-    - apply_nonprod  
+# apply_prod:
+#   stage: apply_prod
+#   script:
+#     - echo "Applying Terraform for Production ($ENVIRONMENT)"
+#     - cd $TERRAFORM_MODULE_PATH
+#     - terraform apply -auto-approve tfplan-prod
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       variables:
+#         ENVIRONMENT: "prod"
+#   when: manual  
+#   needs:
+#     - apply_nonprod  
 
 
 
